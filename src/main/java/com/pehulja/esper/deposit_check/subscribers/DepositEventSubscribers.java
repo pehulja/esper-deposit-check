@@ -16,6 +16,7 @@ import com.espertech.esper.client.EPStatement;
 import com.pehulja.esper.deposit_check.events.DepositFraudEvent;
 import com.pehulja.esper.deposit_check.listeners.DepositBrokeListener;
 import com.pehulja.esper.deposit_check.listeners.DepositFraudListener;
+import com.pehulja.esper.deposit_check.listeners.DepositIncomeLengthListener;
 import com.pehulja.esper.deposit_check.listeners.DepositIncomeListener;
 
 /**
@@ -40,19 +41,26 @@ public class DepositEventSubscribers {
 	public void subscribeOftenDeposit(EPServiceProvider provider) {
 		ConfigurationOperations configuration = provider.getEPAdministrator().getConfiguration();
 		configuration.addEventType("DepositFraudEvent", DepositFraudEvent.class);
+		EPStatement statement = provider.getEPAdministrator().createEPL(properties.getProperty("deposit.fraud.event"));
+		statement.addListener(new DepositFraudListener());
+		
+	}
 
+	public void subscribeIncomeEvent(EPServiceProvider provider) {
+		ConfigurationOperations configuration = provider.getEPAdministrator().getConfiguration();
+
+		EPStatement statement;
 		Map<String, Object> depositIncomeEvent = new HashMap<String, Object>();
 		depositIncomeEvent.put("accountName", String.class);
 		depositIncomeEvent.put("income", int.class);
 
 		configuration.addEventType("depositIncomeEvent", depositIncomeEvent);
-
-		EPStatement statement = provider.getEPAdministrator().createEPL(properties.getProperty("deposit.fraud.event"));
-		statement.addListener(new DepositFraudListener());
-
 		statement = provider.getEPAdministrator().createEPL(properties.getProperty("deposit.income.event"));
 		statement.addListener(new DepositIncomeListener());
 		
+		//TODO: change to create schema
+		statement = provider.getEPAdministrator().createEPL(properties.getProperty("deposit.income.event.length"));
+		statement.addListener(new DepositIncomeLengthListener());
 	}
 	
 	public void subscribeXMLEvents(EPServiceProvider provider){
@@ -67,6 +75,11 @@ public class DepositEventSubscribers {
 		
 		EPStatement statement = provider.getEPAdministrator().createEPL(properties.getProperty("deposit.broke.event"));
 		statement.addListener(new DepositBrokeListener());
-
 	}
+	
+	public void createNamedWindow(EPServiceProvider provider){
+		EPStatement statement = provider.getEPAdministrator().createEPL(properties.getProperty("deposit.window.named1"));
+		provider.getEPAdministrator().createEPL(properties.getProperty("deposit.window.named1.populate"));
+	}
+	
 }

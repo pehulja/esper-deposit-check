@@ -1,5 +1,9 @@
 package com.pehulja.esper.deposit_check.configuration;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
+
 import com.espertech.esper.client.Configuration;
 import com.espertech.esper.client.EPRuntime;
 import com.espertech.esper.client.EPServiceProvider;
@@ -11,12 +15,15 @@ import com.pehulja.esper.deposit_check.subscribers.DepositEventSubscribers;
  * @since Jul 16, 2015 10:38:26 AM
  */
 public class StartUp {
-	public EPRuntime configure() {
+	public EPServiceProvider configure() {
 		Configuration configuration = new Configuration();
 		EPServiceProvider provider = EPServiceProviderManager.getDefaultProvider(configuration);
 		DepositEventSubscribers depositEventSubscribers = new DepositEventSubscribers();
 		depositEventSubscribers.subscribeOftenDeposit(provider);
 		depositEventSubscribers.subscribeXMLEvents(provider);
-		return provider.getEPRuntime();
+		depositEventSubscribers.subscribeIncomeEvent(provider);
+		depositEventSubscribers.createNamedWindow(provider);
+		
+		return provider;
 	}
 }

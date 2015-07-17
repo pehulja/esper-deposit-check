@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 import org.junit.Before;
 import org.junit.Ignore;
@@ -13,6 +14,7 @@ import org.junit.runner.RunWith;
 import org.w3c.dom.Document;
 
 import com.espertech.esper.client.EPRuntime;
+import com.espertech.esper.client.EPServiceProvider;
 import com.pehulja.esper.deposit_check.configuration.StartUp;
 import com.pehulja.esper.deposit_check.configuration.Utils;
 
@@ -23,9 +25,11 @@ import com.pehulja.esper.deposit_check.configuration.Utils;
 @RunWith(JUnit4ClassRunner.class)
 public class DepositFraudEventTest {
 	EPRuntime runtime = null;
+	EPServiceProvider provider = null;
 	@Before
 	public void before(){
-		runtime = new StartUp().configure();		
+		provider = new StartUp().configure();
+		runtime = provider.getEPRuntime();
 	}
 	
 	@Test
@@ -45,24 +49,21 @@ public class DepositFraudEventTest {
 	}
 	
 	@Test
-	@Ignore
 	public void plainTest2() {
 		Map<String, Object> event = new HashMap<>();
-		event.put("accountName", "Account1");
-		event.put("income", 5);
-		runtime.sendEvent(event, "depositIncomeEvent");
-
-		event.put("accountName", "Account1");
-		event.put("income", 25);
-		runtime.sendEvent(event, "depositIncomeEvent");
-
-		event.put("accountName", "Account2");
-		event.put("income", 30);
-		runtime.sendEvent(event, "depositIncomeEvent");
-
+		Random random = new Random();
+		for (int i = 0; i < 10; i++) {
+			event = new HashMap<>();
+			event.put("accountName", "Account" + random.nextInt(3));
+			event.put("income",  + random.nextInt(100));
+			runtime.sendEvent(event, "depositIncomeEvent");
+		}
+		
+		Utils.readNamedWindow(provider);
 	}
 	
 	@Test
+	@Ignore
 	public void plainTest3() {
 		Document document1 = Utils.getXMLEvent("xmlEvents/events/event1.xml");
 		Document document2 = Utils.getXMLEvent("xmlEvents/events/event2.xml");
