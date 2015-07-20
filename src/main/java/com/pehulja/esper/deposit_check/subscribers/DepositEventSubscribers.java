@@ -18,6 +18,8 @@ import com.pehulja.esper.deposit_check.listeners.DepositBrokeListener;
 import com.pehulja.esper.deposit_check.listeners.DepositFraudListener;
 import com.pehulja.esper.deposit_check.listeners.DepositIncomeLengthListener;
 import com.pehulja.esper.deposit_check.listeners.DepositIncomeListener;
+import com.pehulja.esper.deposit_check.subscribers.events.DepositIncomeEvent;
+import com.pehulja.esper.deposit_check.subscribers.events.wrapper.Wrapper;
 
 /**
  * @author Eugene Pehulja
@@ -50,11 +52,9 @@ public class DepositEventSubscribers {
 		ConfigurationOperations configuration = provider.getEPAdministrator().getConfiguration();
 
 		EPStatement statement;
-		Map<String, Object> depositIncomeEvent = new HashMap<String, Object>();
-		depositIncomeEvent.put("accountName", String.class);
-		depositIncomeEvent.put("income", int.class);
-
-		configuration.addEventType("depositIncomeEvent", depositIncomeEvent);
+		
+		configuration.addEventType("com.pehulja.esper.deposit_check.subscribers.events.DepositIncomeEvent", DepositIncomeEvent.class);
+		
 		statement = provider.getEPAdministrator().createEPL(properties.getProperty("deposit.income.event"));
 		statement.addListener(new DepositIncomeListener());
 		
@@ -80,6 +80,9 @@ public class DepositEventSubscribers {
 	public void createNamedWindow(EPServiceProvider provider){
 		EPStatement statement = provider.getEPAdministrator().createEPL(properties.getProperty("deposit.window.named1"));
 		provider.getEPAdministrator().createEPL(properties.getProperty("deposit.window.named1.populate"));
+		
+		provider.getEPAdministrator().createEPL(properties.getProperty("deposit.couchbase.window.create"));
+		provider.getEPAdministrator().createEPL(properties.getProperty("deposit.couchbase.window.populate"));
 	}
 	
 }

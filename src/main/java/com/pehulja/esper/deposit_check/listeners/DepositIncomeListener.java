@@ -27,8 +27,9 @@ public class DepositIncomeListener implements UpdateListener {
 	public void update(EventBean[] newEvents, EventBean[] oldEvents) {
 		if (newEvents != null) {
 			try {
+
 				for (EventBean eventBean : newEvents) {
-					logger.info("INCOME: " + eventBean.get("accountName") + ", income amount " + eventBean.get("income"));
+					logger.info("INCOME: " +  eventBean.get("accountName") + ", income amount " + eventBean.get("income"));
 				}
 			} catch (Exception ex) {
 				System.err.println(ex);
