@@ -5,10 +5,7 @@ import java.io.InputStream;
 import java.util.Iterator;
 import java.util.Properties;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-
 import org.apache.log4j.Logger;
-import org.w3c.dom.Document;
 
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPStatement;
@@ -32,19 +29,6 @@ public class Utils {
 		} catch (IOException ex) {
 			logger.error("", ex);
 		}
-	}
-	
-	public static final Document getXMLEvent(String path){
-		Document doc = null;
-		try{
-			InputStream stream = Utils.class.getClassLoader().getResourceAsStream(path);
-			DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
-			builderFactory.setNamespaceAware(true);
-			doc = builderFactory.newDocumentBuilder().parse(stream);
-		}catch(Exception ex){
-			logger.error("", ex);
-		}
-		return doc;
 	}
 	
 	public static final void readNamedWindow(EPServiceProvider provider){

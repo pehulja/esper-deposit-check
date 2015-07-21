@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<DepositBrokeEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../schema/depositBrakeEventSchema.xsd">
-  <accountName>Account2</accountName>
-  <currency>EUR</currency>
-</DepositBrokeEvent>
