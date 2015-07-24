@@ -68,5 +68,6 @@ public class StartUp {
 		StartUp startUp = ctx.getBean(StartUp.class);
 		startUp.configure();
 		startUp.someTest();
+		//startUp.populate();
 	}
 }

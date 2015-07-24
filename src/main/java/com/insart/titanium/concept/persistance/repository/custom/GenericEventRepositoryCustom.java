@@ -10,7 +10,7 @@ import com.insart.titanium.concept.esper.events.generic.GenericEvent;
  */
 public interface GenericEventRepositoryCustom<S, T> {
 	public GenericEvent save(S genericEvent);
-	public List<GenericEvent> findByAccountNameAndIncome(String accountName, int income);
+	public List<S> customFindByAccountNameAndIncome(String accountName, int income);
 
 	/*
 	 * public List<GenericEvent> findByEventType(String eventType); public

@@ -38,10 +38,15 @@ public class CouchbaseVirtualDataWindowKeyValueLookup implements VirtualDataWind
 	@Override
 	public Set<EventBean> lookup(Object[] keys, EventBean[] eventBeans) {
 		Set<EventBean> obtainedBeans = new HashSet<>();
-		Set<GenericEvent> obtainedEvents = new HashSet<>();
-		Iterable<GenericEvent> lookedup = eventRepository.findByAccountNameAndIncome("Account1", 1);
-		if (lookedup != null) {
-			Iterator<GenericEvent> iterator = lookedup.iterator();
+		/*
+		 * If we use special query for DB either findAll query -> output of Esper will be same, 
+		 * but size of serverside work + amount of transfered data -> different
+		 */
+		//Iterable<GenericEvent> lookedup = eventRepository.findByAccountNameAndIncome("Account1", 7);
+		Iterable<GenericEvent> obtainedEvents = eventRepository.customFindByAccountNameAndIncome("Account1", 7);
+
+		if (obtainedEvents != null) {
+			Iterator<GenericEvent> iterator = obtainedEvents.iterator();
 			while (iterator.hasNext()) {
 				obtainedBeans.add(context.getEventFactory().wrap(iterator.next()));
 			}

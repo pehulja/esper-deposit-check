@@ -51,7 +51,7 @@ public class DepositIncomeEvent extends GenericEvent {
 
 	@Override
 	public String toString() {
-		return "DepositIncomeEvent [accountName=" + accountName + ", income=" + income + "]";
+		return "DepositIncomeEvent [id = "+this.getId()+", accountName=" + accountName + ", income=" + income + "]";
 	}
 
 }

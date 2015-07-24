@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -22,34 +23,36 @@ import com.insart.titanium.concept.esper.vdw.CouchbaseVirtualDataWindowFactory;
 @ComponentScan({"com.insart.titanium.concept"})
 @EnableCouchbaseRepositories(basePackages = "com.insart.titanium.concept.persistance.repository", repositoryImplementationPostfix = "CustomImpl")
 @PropertySource(value = { "classpath:application.properties", "classpath:events.properties" })
-public class SpringConfiguration extends AbstractCouchbaseConfiguration {
+public class SpringConfiguration extends AbstractCouchbaseConfiguration{
 
-	private static final String PROPERTY_COUCHBASE_LOCATION = "couchbase.host";
-	private static final String PROPERTY_COUCHBASE_BACKET = "couchbase.backet";
-	private static final String PROPERTY_COUCHBASE_PASSWORD = "couchbase.password";
-
-	@Resource
-	private Environment env;
-
+	@Value("${host}")
+	public String PROPERTY_COUCHBASE_LOCATION;
+	
+	@Value("${backet}")
+	public String PROPERTY_COUCHBASE_BACKET;
+	
+	@Value("${password}")
+	public String PROPERTY_COUCHBASE_PASSWORD;
+	
 	@Override
 	protected String getBucketName() {
-		return env.getProperty(PROPERTY_COUCHBASE_BACKET);
+		return PROPERTY_COUCHBASE_BACKET;
 	}
 
 	@Override
 	protected String getBucketPassword() {
-		return env.getProperty(PROPERTY_COUCHBASE_PASSWORD);
+		return PROPERTY_COUCHBASE_PASSWORD;
 	}
-
+	@Override
+	protected List<String> getBootstrapHosts() {
+		return Arrays.asList(PROPERTY_COUCHBASE_LOCATION);
+	}
+	
 	@Bean
 	public ApplicationContextProvider getApplicationContextProvider() {
 		return new ApplicationContextProvider();
 	}
-
-	@Override
-	protected List<String> getBootstrapHosts() {
-		return Arrays.asList(env.getProperty(PROPERTY_COUCHBASE_LOCATION));
-	}
+	
 
 	@Bean
 	public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {

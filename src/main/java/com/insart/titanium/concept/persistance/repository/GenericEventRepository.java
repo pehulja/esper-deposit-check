@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.data.couchbase.core.view.View;
 import org.springframework.data.repository.CrudRepository;
 
+import com.insart.titanium.concept.esper.events.DepositIncomeEvent;
 import com.insart.titanium.concept.esper.events.generic.GenericEvent;
 import com.insart.titanium.concept.persistance.repository.custom.GenericEventRepositoryCustom;
 
@@ -17,5 +18,4 @@ public interface GenericEventRepository extends CrudRepository<GenericEvent, Lon
 	@View
 	public List<GenericEvent> findByEventType(String eventType);
 	
-
 }

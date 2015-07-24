@@ -6,11 +6,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.couchbase.core.CouchbaseTemplate;
 import org.springframework.stereotype.Repository;
 
+import com.couchbase.client.java.document.JsonDocument;
 import com.couchbase.client.java.document.JsonLongDocument;
 import com.couchbase.client.java.document.json.JsonArray;
 import com.couchbase.client.java.view.ViewQuery;
 import com.insart.titanium.concept.esper.events.generic.GenericEvent;
 import com.insart.titanium.concept.persistance.repository.custom.GenericEventRepositoryCustom;
+
+import rx.Observable;
+import rx.functions.Func1;
 
 /**
  * @author Eugene Pehulja
@@ -25,7 +29,6 @@ public class GenericEventRepositoryCustomImpl implements GenericEventRepositoryC
 
 	@Override
 	public GenericEvent save(GenericEvent genericEvent) {
-		// template.getCouchbaseBucket().bucketManager().
 		JsonLongDocument counter = template.getCouchbaseBucket().counter(KEY_ID, 1, 1);
 		genericEvent.setId(counter.content());
 		template.save(genericEvent);
@@ -36,9 +39,8 @@ public class GenericEventRepositoryCustomImpl implements GenericEventRepositoryC
 	 * @see com.couchbase.esper.persistance.repository.custom.GenericEventRepositoryCustom#findByAccountNameAndIncome(java.lang.String, int)
 	 */
 	@Override
-	public List<GenericEvent> findByAccountNameAndIncome(String accountName, int income) {
-		ViewQuery viewQuery = ViewQuery.from("genericevent", "byAccountNameAndIncome");
-		viewQuery.startKey(JsonArray.from(accountName, income));
+	public List<GenericEvent> customFindByAccountNameAndIncome(String accountName, int income) {
+		ViewQuery viewQuery = ViewQuery.from("genericevent", "byAccountNameAndIncome").key(JsonArray.from(accountName, income));
 		return template.findByView(viewQuery, GenericEvent.class);
 	}
 
