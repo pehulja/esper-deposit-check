@@ -1,21 +1,17 @@
-package com.couchbase.esper;
+package com.insart.titanium.concept.esper.vdw;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Collections;
-import java.util.Properties;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.context.ConfigurableApplicationContext;
 
-import com.couchbase.client.java.Bucket;
-import com.couchbase.client.java.Cluster;
-import com.couchbase.client.java.CouchbaseCluster;
 import com.espertech.esper.client.hook.VirtualDataWindow;
 import com.espertech.esper.client.hook.VirtualDataWindowContext;
 import com.espertech.esper.client.hook.VirtualDataWindowFactory;
 import com.espertech.esper.client.hook.VirtualDataWindowFactoryContext;
+import com.insart.titanium.concept.configuration.ApplicationContextProvider;
 
 /**
  * Created by David on 03/02/2015.
@@ -23,12 +19,7 @@ import com.espertech.esper.client.hook.VirtualDataWindowFactoryContext;
 public class CouchbaseVirtualDataWindowFactory implements VirtualDataWindowFactory {
 
 	private static final Log log = LogFactory.getLog(CouchbaseVirtualDataWindowFactory.class);
-	private Cluster cluster;
-	private Bucket bucket;
-	
-	private String host;
-	private String backetName;
-	private String backetPassword;
+	private ConfigurableApplicationContext applicationContext;
 
 	/**
 	 * @param host
@@ -37,25 +28,17 @@ public class CouchbaseVirtualDataWindowFactory implements VirtualDataWindowFacto
 	 */
 	public CouchbaseVirtualDataWindowFactory() {
 		super();
-		this.host = "127.0.0.1";
-		this.backetName = "esper";
-		this.backetPassword = "Xig2eogh";
+		applicationContext = (ConfigurableApplicationContext) ApplicationContextProvider.getApplicationContext();
 	}
 
 	@Override
 	public void initialize(VirtualDataWindowFactoryContext virtualDataWindowFactoryContext) {
 		log.debug(virtualDataWindowFactoryContext);
-		cluster = CouchbaseCluster.create(this.host);
-		if(this.backetPassword == null){
-			bucket = cluster.openBucket(this.backetName);
-		}else{
-			bucket = cluster.openBucket(this.backetName, this.backetPassword);
-		}
 	}
 
 	@Override
 	public VirtualDataWindow create(VirtualDataWindowContext context) {
-		return new CouchbaseVirtualDataWindow(bucket, context);
+		return applicationContext.getBean(CouchbaseVirtualDataWindow.class, context);
 	}
 
 	@Override

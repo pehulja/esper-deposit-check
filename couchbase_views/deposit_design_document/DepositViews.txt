@@ -1,0 +1,15 @@
+genericevent design document:
+
+* all + count views (with count reduce)
+function (doc, meta) {
+  if (doc._class == "com.insart.titanium.concept.esper.events.DepositIncomeEvent") {
+    emit(null, null);
+  }
+}
+
+* byAccountNameAndIncome
+function (doc, meta) {
+  if (doc._class == "com.insart.titanium.concept.esper.events.DepositIncomeEvent") {
+    emit([doc.accountName, doc.income], null);
+  }
+}

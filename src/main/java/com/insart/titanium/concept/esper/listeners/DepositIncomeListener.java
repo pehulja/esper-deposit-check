@@ -1,4 +1,4 @@
-package com.pehulja.esper.deposit_check.listeners;
+package com.insart.titanium.concept.esper.listeners;
 
 import org.apache.log4j.Logger;
 
@@ -30,8 +30,9 @@ public class DepositIncomeListener implements UpdateListener {
 				logger.info("----------------");
 
 				for (EventBean eventBean : newEvents) {
-					//logger.info("INCOME: " +  eventBean.get("accountName") + ", income amount " + eventBean.get("income"));
-					logger.info("Total number:" + eventBean.get("count(*)"));
+					// logger.info("INCOME: " + eventBean.get("accountName") +
+					// ", income amount " + eventBean.get("income"));
+					logger.info(eventBean.toString());
 				}
 				logger.info("----------------");
 

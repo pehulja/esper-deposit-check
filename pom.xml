@@ -1,9 +1,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.pehulja.esper</groupId>
-	<artifactId>deposit-check</artifactId>
-	<version>1.0</version>
+	<groupId>com.insart.titanium</groupId>
+	<artifactId>concept</artifactId>
+	<version>0.1</version>
 	<name>Deposit Check</name>
 	<dependencies>
 		<dependency>
@@ -14,12 +14,6 @@
 		<dependency>
 			<groupId>com.espertech</groupId>
 			<artifactId>esper</artifactId>
-			<version>LATEST</version>
-		</dependency>
-
-		<dependency>
-			<groupId>com.couchbase.client</groupId>
-			<artifactId>java-client</artifactId>
 			<version>LATEST</version>
 		</dependency>
 
@@ -45,13 +39,48 @@
 			<artifactId>junit</artifactId>
 			<version>4.4</version>
 		</dependency>
-		
 		<dependency>
-    <groupId>ch.uzh.ifi.ddis.ifp</groupId>
-    <artifactId>cassandra-esper</artifactId>
-    <version>0.3.0</version>
-</dependency>
+			<groupId>com.couchbase.client</groupId>
+			<artifactId>java-client</artifactId>
+			<version>2.2.0-dp</version>
+		</dependency>
+		<dependency>
+			<groupId>ch.uzh.ifi.ddis.ifp</groupId>
+			<artifactId>cassandra-esper</artifactId>
+			<version>0.3.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-simple</artifactId>
+			<version>1.7.12</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>3.4</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.data</groupId>
+			<artifactId>spring-data-couchbase</artifactId>
+			<version>2.0.0.BUILD-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
+	<repositories>
+		<repository>
+			<id>spring-libs-snapshot</id>
+			<name>Spring Snapshot Repository</name>
+			<url>http://repo.spring.io/libs-snapshot</url>
+		</repository>
+		<repository>
+			<id>couchbase</id>
+			<name>couchbase repo</name>
+			<url>http://files.couchbase.com/maven2</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
 	<build>
 		<plugins>
 			<plugin>
@@ -59,8 +88,8 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.3</version>
 				<configuration>
-					<source>1.7</source>
-					<target>1.7</target>
+					<source>1.8</source>
+					<target>1.8</target>
 				</configuration>
 			</plugin>
 			<plugin>
