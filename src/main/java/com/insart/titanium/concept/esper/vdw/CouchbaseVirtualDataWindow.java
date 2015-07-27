@@ -2,6 +2,7 @@ package com.insart.titanium.concept.esper.vdw;
 
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -29,8 +30,10 @@ import com.insart.titanium.concept.persistance.repository.GenericEventRepository
 public class CouchbaseVirtualDataWindow implements VirtualDataWindow, InitializingBean {
 	private static final Log log = LogFactory.getLog(CouchbaseVirtualDataWindowFactory.class);
 	private VirtualDataWindowContext context;
+
 	private String[] propertyNames;
 
+	// Type Of events that will be managed by Esper
 	private Class type;
 
 	@Autowired
@@ -84,16 +87,20 @@ public class CouchbaseVirtualDataWindow implements VirtualDataWindow, Initializi
 		List<EventBean> obtainedBeans = null;
 		obtainedBeans = Collections.<EventBean> emptyList();
 
-		/*
-		 * try { Iterable<GenericEvent> obtainedEvents =
-		 * eventRepository.findByEventType(type.getName()); if (obtainedEvents
-		 * == null) { obtainedBeans = Collections.<EventBean> emptyList(); }
-		 * else { obtainedBeans = new LinkedList<>(); for (GenericEvent
-		 * genericEvent : obtainedEvents) {
-		 * obtainedBeans.add(context.getEventFactory().wrap(genericEvent)); } }
-		 * } catch (Exception ex) { log.error(ex); obtainedBeans =
-		 * Collections.<EventBean> emptyList(); }
-		 */
+		try {
+			Iterable<GenericEvent> obtainedEvents = eventRepository.findAll();
+			if (obtainedEvents == null) {
+				obtainedBeans = Collections.<EventBean> emptyList();
+			} else {
+				obtainedBeans = new LinkedList<>();
+				for (GenericEvent genericEvent : obtainedEvents) {
+					obtainedBeans.add(context.getEventFactory().wrap(genericEvent));
+				}
+			}
+		} catch (Exception ex) {
+			log.error(ex);
+			obtainedBeans = Collections.<EventBean> emptyList();
+		}
 		return obtainedBeans.iterator();
 	}
 

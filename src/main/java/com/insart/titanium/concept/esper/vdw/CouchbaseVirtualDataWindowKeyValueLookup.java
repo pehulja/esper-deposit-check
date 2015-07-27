@@ -27,7 +27,6 @@ public class CouchbaseVirtualDataWindowKeyValueLookup implements VirtualDataWind
 
 	private VirtualDataWindowContext context;
 	private VirtualDataWindowLookupContext lookupContext;
-	private String keyPropertyName = "id";
 
 	public CouchbaseVirtualDataWindowKeyValueLookup() {
 	}
@@ -42,11 +41,20 @@ public class CouchbaseVirtualDataWindowKeyValueLookup implements VirtualDataWind
 		 * If we use special query for DB either findAll query -> output of Esper will be same, 
 		 * but size of serverside work + amount of transfered data -> different
 		 */
-		//Iterable<GenericEvent> lookedup = eventRepository.findByAccountNameAndIncome("Account1", 7);
-		Iterable<GenericEvent> obtainedEvents = eventRepository.customFindByAccountNameAndIncome("Account1", 7);
-
+		//TODO: For now it should be only findAll, untill implementation of query for Couchbase
+		Iterable<GenericEvent> obtainedEvents = eventRepository.findAll();
+		/*Iterable<GenericEvent> obtainedEvents = eventRepository.customFindByAccountNameAndIncome("Account1", 7);
+		try{
+			obtainedEvents = eventRepository.findAll();
+		}catch(Exception ex){
+			log.error(ex);
+		}
+		obtainedEvents = eventRepository.findByType("DEPOSIT_INCOME_EVENT");*/
+		
 		if (obtainedEvents != null) {
 			Iterator<GenericEvent> iterator = obtainedEvents.iterator();
+			
+			// Esper manipulates with EventBean, so need to wrap our event to EventBean
 			while (iterator.hasNext()) {
 				obtainedBeans.add(context.getEventFactory().wrap(iterator.next()));
 			}

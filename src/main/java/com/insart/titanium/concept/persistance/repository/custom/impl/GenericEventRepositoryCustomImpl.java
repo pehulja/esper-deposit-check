@@ -6,15 +6,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.couchbase.core.CouchbaseTemplate;
 import org.springframework.stereotype.Repository;
 
-import com.couchbase.client.java.document.JsonDocument;
 import com.couchbase.client.java.document.JsonLongDocument;
 import com.couchbase.client.java.document.json.JsonArray;
 import com.couchbase.client.java.view.ViewQuery;
 import com.insart.titanium.concept.esper.events.generic.GenericEvent;
 import com.insart.titanium.concept.persistance.repository.custom.GenericEventRepositoryCustom;
-
-import rx.Observable;
-import rx.functions.Func1;
 
 /**
  * @author Eugene Pehulja
@@ -40,8 +36,17 @@ public class GenericEventRepositoryCustomImpl implements GenericEventRepositoryC
 	 */
 	@Override
 	public List<GenericEvent> customFindByAccountNameAndIncome(String accountName, int income) {
-		ViewQuery viewQuery = ViewQuery.from("genericevent", "byAccountNameAndIncome").key(JsonArray.from(accountName, income));
+		ViewQuery viewQuery = ViewQuery.from("genericEvent", "byAccountNameAndIncome").key(JsonArray.from(accountName, income));
 		return template.findByView(viewQuery, GenericEvent.class);
+	}
+
+	/* (non-Javadoc)
+	 * @see com.insart.titanium.concept.persistance.repository.custom.GenericEventRepositoryCustom#findAll()
+	 */
+	@Override
+	public List<GenericEvent> findAll() {
+		ViewQuery viewQuery = ViewQuery.from("genericEvent", "all");
+		return template.findByView(viewQuery, GenericEvent.class);	
 	}
 
 	/*

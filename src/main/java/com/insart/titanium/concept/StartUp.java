@@ -1,4 +1,4 @@
-package com.insart.titanium.concept.configuration;
+package com.insart.titanium.concept;
 
 import java.util.Random;
 
@@ -14,6 +14,7 @@ import com.espertech.esper.client.EPOnDemandQueryResult;
 import com.espertech.esper.client.EPRuntime;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EventBean;
+import com.insart.titanium.concept.configuration.SpringConfiguration;
 import com.insart.titanium.concept.esper.events.DepositIncomeEvent;
 import com.insart.titanium.concept.esper.subscribers.DepositEventSubscribers;
 
@@ -43,7 +44,7 @@ public class StartUp {
 		EPRuntime runtime = epServiceProvider.getEPRuntime();
 		Random random = new Random();
 
-		for(int i = 0; i < 10; i++){ 
+		for(int i = 0; i < 5; i++){ 
 			 depositIncomeEvent = new DepositIncomeEvent("Account" + random.nextInt(3), random.nextInt(10),	 "DEPOSIT_INCOME_EVENT"); runtime.sendEvent(depositIncomeEvent); 
 			 runtime.sendEvent(depositIncomeEvent);
 		}
@@ -62,6 +63,17 @@ public class StartUp {
 		System.out.println("DONE");	
 	}
 
+	public void someTest2(){
+
+		EPRuntime runtime = epServiceProvider.getEPRuntime();
+
+		EPOnDemandQueryResult result = runtime.executeQuery(environment.getProperty("deposit.couchbase.window.select.criteria"));
+		for(EventBean eventBean : result.getArray()){
+			System.out.println(eventBean.getUnderlying());
+		}
+		System.out.println("DONE");	
+	}
+	
 	public static void main(String[] argv) throws InterruptedException {
 		ApplicationContext ctx = new AnnotationConfigApplicationContext(SpringConfiguration.class);
 		

@@ -34,7 +34,6 @@ public class DepositEventSubscribers {
 		configuration.addEventType("DepositIncomeEvent", DepositIncomeEvent.class);
 		provider.getEPAdministrator().createEPL(environment.getProperty("deposit.couchbase.window.create"));
 		provider.getEPAdministrator().createEPL(environment.getProperty("deposit.couchbase.window.populate"));
-
 		/*
 		 * EPStatement statement =
 		 * provider.getEPAdministrator().createEPL(properties.getProperty(
