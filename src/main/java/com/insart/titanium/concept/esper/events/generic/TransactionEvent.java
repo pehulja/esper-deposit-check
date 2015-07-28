@@ -2,8 +2,8 @@ package com.insart.titanium.concept.esper.events.generic;
 
 import java.util.Date;
 
-import com.couchbase.client.java.repository.annotation.Field;
-import com.couchbase.client.java.repository.annotation.Id;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.couchbase.core.mapping.Field;
 
 /**
  * @author Eugene Pehulja
@@ -12,19 +12,21 @@ import com.couchbase.client.java.repository.annotation.Id;
 public abstract class TransactionEvent {
 
 	@Id
-	private Long id;
+	private String id;
 
 	@Field
 	private Date date;
 
 	@Field
 	private String account;
+	
+	private int countOfKeepedViews = 0;
 
-	public Long getId() {
+	public String getId() {
 		return id;
 	}
 
-	public void setId(Long id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 
@@ -53,6 +55,14 @@ public abstract class TransactionEvent {
 		super();
 		this.date = date;
 		this.account = account;
+	}
+	
+	public int getCountOfKeepedViews() {
+		return countOfKeepedViews;
+	}
+
+	public void setCountOfKeepedViews(int countOfKeepedViews) {
+		this.countOfKeepedViews = countOfKeepedViews;
 	}
 
 	@Override

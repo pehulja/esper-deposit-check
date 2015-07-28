@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.couchbase.core.CouchbaseTemplate;
 import org.springframework.stereotype.Repository;
 
-import com.couchbase.client.java.document.JsonLongDocument;
 import com.insart.titanium.concept.esper.events.generic.TransactionEvent;
 import com.insart.titanium.concept.persistance.repository.custom.GenericTransactionRepositoryCustom;
 
@@ -22,15 +21,16 @@ public class GenericTransactionRepositoryCustomImpl implements GenericTransactio
 	@Override
 	public TransactionEvent save(TransactionEvent genericEvent) {
 		if (genericEvent.getId() == null) {
-			JsonLongDocument counter = template.getCouchbaseBucket().counter(KEY_ID, 1, 1);
-			genericEvent.setId(counter.content());
-		}
-		if (template.exists(genericEvent.getId().toString())) {
-			template.update(genericEvent);
-		} else {
+			/*
+			 * JsonLongDocument counter =
+			 * template.getCouchbaseBucket().counter(KEY_ID, 1, 1);
+			 * genericEvent.setId(counter.content());
+			 */
+			genericEvent.setId(Long.toString(template.getCouchbaseClient().incr(KEY_ID, 1, 1)));
 			template.save(genericEvent);
+		} else {
+			System.out.println("Exists");
 		}
-
 		return genericEvent;
 	}
 }

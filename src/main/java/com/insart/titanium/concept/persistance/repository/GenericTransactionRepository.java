@@ -12,9 +12,9 @@ import com.insart.titanium.concept.persistance.repository.custom.GenericTransact
  * @author Eugene Pehulja
  * @since Jul 22, 2015 9:47:19 AM
  */
-public interface GenericTransactionRepository extends CrudRepository<TransactionEvent, Long>, GenericTransactionRepositoryCustom {
+public interface GenericTransactionRepository extends CrudRepository<TransactionEvent, String>, GenericTransactionRepositoryCustom {
 
-	@View
+	@View(viewName = "byType", designDocument = "genericEvent")
 	public List<TransactionEvent> findByType(String eventType);
 
 }

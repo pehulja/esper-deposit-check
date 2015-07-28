@@ -38,7 +38,8 @@ public class CouchbaseVirtualDataWindowFactory implements VirtualDataWindowFacto
 
 	@Override
 	public VirtualDataWindow create(VirtualDataWindowContext context) {
-		return applicationContext.getBean(CouchbaseVirtualDataWindow.class, context);
+		CouchbaseVirtualDataWindow couchbaseVirtualDataWindow = (CouchbaseVirtualDataWindow) applicationContext.getBean("CouchbaseVirtualDataWindow", context);
+		return couchbaseVirtualDataWindow;
 	}
 
 	@Override

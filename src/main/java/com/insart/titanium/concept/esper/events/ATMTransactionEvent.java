@@ -3,8 +3,8 @@ package com.insart.titanium.concept.esper.events;
 import java.util.Date;
 
 import org.springframework.data.couchbase.core.mapping.Document;
+import org.springframework.data.couchbase.core.mapping.Field;
 
-import com.couchbase.client.java.repository.annotation.Field;
 import com.insart.titanium.concept.esper.events.generic.TransactionEvent;
 
 /**

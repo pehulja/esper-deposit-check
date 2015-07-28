@@ -38,10 +38,10 @@ public class SpringConfiguration extends AbstractCouchbaseConfiguration {
 		return PROPERTY_COUCHBASE_PASSWORD;
 	}
 
-	@Override
-	protected List<String> getBootstrapHosts() {
-		return Arrays.asList(PROPERTY_COUCHBASE_LOCATION);
-	}
+	/*
+	 * @Override protected List<String> getBootstrapHosts() { return
+	 * Arrays.asList(PROPERTY_COUCHBASE_LOCATION); }
+	 */
 
 	@Bean
 	public ApplicationContextAware getApplicationContextProvider() {
@@ -51,6 +51,18 @@ public class SpringConfiguration extends AbstractCouchbaseConfiguration {
 	@Bean
 	public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
 		return new PropertySourcesPlaceholderConfigurer();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.springframework.data.couchbase.config.AbstractCouchbaseConfiguration#
+	 * bootstrapHosts()
+	 */
+	@Override
+	protected List<String> bootstrapHosts() {
+		return Arrays.asList(PROPERTY_COUCHBASE_LOCATION);
 	}
 
 }

@@ -27,10 +27,11 @@ public class TransactionEventGenerator {
 
 	@Autowired
 	GenericTransactionRepository genericTransactionRepository;
+	private final int DEFAULT_UNIQUE_ACCOUNT_NUMBER = 4;
 
-	public void generateEvents() {
+	public void generateEvents(int uniqueAccountNumber) {
 		final EPServiceProvider epServiceProvider = this.epServiceProvider;
-		genericTransactionRepository.deleteAll();
+		//genericTransactionRepository.deleteAll();
 
 		ExecutorService executorService = Executors.newSingleThreadExecutor();
 		executorService.execute(new Runnable() {
@@ -38,17 +39,21 @@ public class TransactionEventGenerator {
 
 			@Override
 			public void run() {
-				while(true){
-					ATMTransactionEvent atmTransactionEvent = new ATMTransactionEvent(new Date(), "Account_" + random.nextInt(4), random.nextDouble() * 1000,
+				while (true) {
+					ATMTransactionEvent atmTransactionEvent = new ATMTransactionEvent(new Date(), "Account_" + random.nextInt(uniqueAccountNumber), 100.0,
 							"Address" + random.nextInt(5));
 					epServiceProvider.getEPRuntime().sendEvent(atmTransactionEvent);
 					try {
-						Thread.sleep(100);
+						Thread.sleep(500);
 					} catch (InterruptedException ex) {
 						logger.error("", ex);
 					}
 				}
 			}
 		});
+	}
+
+	public void generateEvents() {
+		this.generateEvents(DEFAULT_UNIQUE_ACCOUNT_NUMBER);
 	}
 }

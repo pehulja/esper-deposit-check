@@ -10,6 +10,7 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
+import com.espertech.esper.client.EPOnDemandQueryResult;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPStatement;
 import com.insart.titanium.concept.configuration.EsperConfiguration;
@@ -42,18 +43,37 @@ public class StartUp {
 	}
 
 	public void start() {
-		final int DATA_WINDOW_LENGTH = 3;
-		final int TOTAL_AMOUT_MEASURE = 2600;
-		
+		final int DATA_WINDOW_LENGTH = 2;
+		int TOTAL_AMOUT_MEASURE = 3000;
+
 		epServiceProvider.getEPAdministrator().getConfiguration().addEventType("ATMTransactionEvent", ATMTransactionEvent.class);
-		epServiceProvider.getEPAdministrator().createEPL(MessageFormat.format(environment.getProperty("atmtransaction.window.create"), Integer.toString(DATA_WINDOW_LENGTH)));
-		epServiceProvider.getEPAdministrator().createEPL(environment.getProperty("atmtransaction.window.subscribe"));
-		
-		EPStatement statement = epServiceProvider.getEPAdministrator().createEPL(MessageFormat.format(environment.getProperty("atmtransaction.window.fraud"), Integer.toString(TOTAL_AMOUT_MEASURE)));
+
+		int virtualDataWindowId = 0;
+		// Virtual Data Window 1
+		virtualDataWindowId = 1;
+		epServiceProvider.getEPAdministrator().createEPL(MessageFormat.format(environment.getProperty("atmtransaction.window.create"), Integer.toString(virtualDataWindowId)));
+		epServiceProvider.getEPAdministrator().createEPL(MessageFormat.format(environment.getProperty("atmtransaction.window.subscribe"), Integer.toString(virtualDataWindowId)));
+
+		EPStatement statement = epServiceProvider.getEPAdministrator().createEPL(MessageFormat.format(environment.getProperty("atmtransaction.window.fraud"), Integer.toString(virtualDataWindowId), Integer.toString(TOTAL_AMOUT_MEASURE)));
 		statement.addListener(new TransactionListener(transaction -> {
-			System.out.println("Account: " + transaction.get("account") + ", Total transaction amount: " + transaction.get("total"));
+			System.out.println("VURTUAL DATA WINDOW1: Account: " + transaction.get("name") + ", Total transaction amount: " + transaction.get("total"));
 		}));
+
 		
-		eventGenerator.generateEvents();
+		
+		// Virtual Data Window 2
+/*		virtualDataWindowId = 2;
+		TOTAL_AMOUT_MEASURE = 1500;
+		epServiceProvider.getEPAdministrator().createEPL(
+				MessageFormat.format(environment.getProperty("atmtransaction.window.create"), Integer.toString(virtualDataWindowId), Integer.toString(DATA_WINDOW_LENGTH)));
+		epServiceProvider.getEPAdministrator().createEPL(MessageFormat.format(environment.getProperty("atmtransaction.window.subscribe"), Integer.toString(virtualDataWindowId)));
+
+		statement = epServiceProvider.getEPAdministrator().createEPL(
+				MessageFormat.format(environment.getProperty("atmtransaction.window.fraud"), Integer.toString(virtualDataWindowId), Integer.toString(TOTAL_AMOUT_MEASURE)));
+		statement.addListener(new TransactionListener(transaction -> {
+			System.out.println("VURTUAL DATA WINDOW2: Account: " + transaction.get("account") + ", Total transaction amount: " + transaction.get("total"));
+		}));*/
+
+		eventGenerator.generateEvents(2);
 	}
 }
