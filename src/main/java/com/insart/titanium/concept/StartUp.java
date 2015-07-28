@@ -41,14 +41,15 @@ public class StartUp {
 		StartUp startUp = ctx.getBean(StartUp.class);
 		startUp.start();
 	}
-
-	public void start() {
+	
+	public void vdwTest(){
 		final int DATA_WINDOW_LENGTH = 2;
-		int TOTAL_AMOUT_MEASURE = 3000;
+		int TOTAL_AMOUT_MEASURE = 200;
 
 		epServiceProvider.getEPAdministrator().getConfiguration().addEventType("ATMTransactionEvent", ATMTransactionEvent.class);
 
 		int virtualDataWindowId = 0;
+		
 		// Virtual Data Window 1
 		virtualDataWindowId = 1;
 		epServiceProvider.getEPAdministrator().createEPL(MessageFormat.format(environment.getProperty("atmtransaction.window.create"), Integer.toString(virtualDataWindowId)));
@@ -58,8 +59,35 @@ public class StartUp {
 		statement.addListener(new TransactionListener(transaction -> {
 			System.out.println("VURTUAL DATA WINDOW1: Account: " + transaction.get("name") + ", Total transaction amount: " + transaction.get("total"));
 		}));
+	}
+	
+	public void vdwTestManualInsert(){
+		final int DATA_WINDOW_LENGTH = 2;
+		int TOTAL_AMOUT_MEASURE = 3000;
 
+		epServiceProvider.getEPAdministrator().getConfiguration().addEventType("ATMTransactionEvent", ATMTransactionEvent.class);
+
+		int virtualDataWindowId = 0;
 		
+		// Virtual Data Window 1
+		virtualDataWindowId = 1;
+		epServiceProvider.getEPAdministrator().createEPL(MessageFormat.format(environment.getProperty("atmtransaction.window.create"), Integer.toString(virtualDataWindowId)));
+		epServiceProvider.getEPAdministrator().createEPL(MessageFormat.format(environment.getProperty("atmtransaction.merge"), Integer.toString(virtualDataWindowId)));
+	}
+	
+	public void namedWindowTest(){
+		epServiceProvider.getEPAdministrator().getConfiguration().addEventType("ATMTransactionEvent", ATMTransactionEvent.class);
+		epServiceProvider.getEPAdministrator().createEPL(environment.getProperty("atmtransaction.named.window.create"));
+		epServiceProvider.getEPAdministrator().createEPL(environment.getProperty("atmtransaction.named.window.subscribe"));
+
+		EPStatement statement = epServiceProvider.getEPAdministrator().createEPL(environment.getProperty("atmtransaction.named.window.fraud"));
+		statement.addListener(new TransactionListener(transaction -> {
+			System.out.println("NAMED DATA WINDOW: Account: " + transaction.get("account") + ", Number: " + transaction.get("number"));
+		}));
+	}
+	
+	public void start() {
+		vdwTest();
 		
 		// Virtual Data Window 2
 /*		virtualDataWindowId = 2;

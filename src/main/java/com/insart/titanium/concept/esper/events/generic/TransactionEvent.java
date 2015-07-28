@@ -20,7 +20,8 @@ public abstract class TransactionEvent {
 	@Field
 	private String account;
 	
-	private int countOfKeepedViews = 0;
+	private boolean deletedFlag = true;
+	
 
 	public String getId() {
 		return id;
@@ -57,12 +58,12 @@ public abstract class TransactionEvent {
 		this.account = account;
 	}
 	
-	public int getCountOfKeepedViews() {
-		return countOfKeepedViews;
+	public boolean isDeletedFlag() {
+		return deletedFlag;
 	}
 
-	public void setCountOfKeepedViews(int countOfKeepedViews) {
-		this.countOfKeepedViews = countOfKeepedViews;
+	public void setDeletedFlag(boolean deletedFlag) {
+		this.deletedFlag = deletedFlag;
 	}
 
 	@Override

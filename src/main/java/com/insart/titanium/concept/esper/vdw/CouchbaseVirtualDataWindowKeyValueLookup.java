@@ -55,7 +55,6 @@ public class CouchbaseVirtualDataWindowKeyValueLookup implements VirtualDataWind
 
 		if (obtainedEvents != null) {
 			Iterator<TransactionEvent> iterator = obtainedEvents.iterator();
-
 			// Esper manipulates with EventBean, so need to wrap our event to
 			// EventBean
 			while (iterator.hasNext()) {
