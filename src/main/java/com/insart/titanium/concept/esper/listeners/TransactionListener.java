@@ -9,11 +9,16 @@ import com.espertech.esper.client.UpdateListener;
  * @author Eugene Pehulja
  * @since Jul 16, 2015 10:33:16 AM
  */
-public class DepositIncomeListener implements UpdateListener {
+public class TransactionListener implements UpdateListener {
 	private static final Logger logger;
+	UpdateEventProcessor updateEventProcessor;
+
+	public TransactionListener(UpdateEventProcessor updateEventProcessor) {
+		this.updateEventProcessor = updateEventProcessor;
+	}
 
 	static {
-		logger = Logger.getLogger(DepositIncomeListener.class);
+		logger = Logger.getLogger(TransactionListener.class);
 	}
 
 	/*
@@ -28,11 +33,8 @@ public class DepositIncomeListener implements UpdateListener {
 		if (newEvents != null) {
 			try {
 				logger.info("----------------");
-
 				for (EventBean eventBean : newEvents) {
-					// logger.info("INCOME: " + eventBean.get("accountName") +
-					// ", income amount " + eventBean.get("income"));
-					logger.info(eventBean.toString());
+					updateEventProcessor.processEvent(eventBean);
 				}
 				logger.info("----------------");
 
@@ -41,5 +43,4 @@ public class DepositIncomeListener implements UpdateListener {
 			}
 		}
 	}
-
 }

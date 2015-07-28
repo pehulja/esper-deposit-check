@@ -3,8 +3,8 @@ package com.insart.titanium.concept.esper.vdw;
 import java.util.Collections;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 
 import com.espertech.esper.client.hook.VirtualDataWindow;
@@ -18,7 +18,7 @@ import com.insart.titanium.concept.configuration.ApplicationContextProvider;
  */
 public class CouchbaseVirtualDataWindowFactory implements VirtualDataWindowFactory {
 
-	private static final Log log = LogFactory.getLog(CouchbaseVirtualDataWindowFactory.class);
+	private static final Logger log = LoggerFactory.getLogger(CouchbaseVirtualDataWindowFactory.class);
 	private ConfigurableApplicationContext applicationContext;
 
 	/**
@@ -33,7 +33,7 @@ public class CouchbaseVirtualDataWindowFactory implements VirtualDataWindowFacto
 
 	@Override
 	public void initialize(VirtualDataWindowFactoryContext virtualDataWindowFactoryContext) {
-		log.debug(virtualDataWindowFactoryContext);
+		log.debug("", virtualDataWindowFactoryContext);
 	}
 
 	@Override
@@ -48,7 +48,6 @@ public class CouchbaseVirtualDataWindowFactory implements VirtualDataWindowFacto
 
 	@Override
 	public Set<String> getUniqueKeyPropertyNames() {
-		log.debug("getUniqueKeyPropertyNames()");
-		return Collections.singleton("couchbaseId");
+		return Collections.singleton("id");
 	}
 }

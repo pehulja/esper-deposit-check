@@ -5,8 +5,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -18,8 +18,8 @@ import com.espertech.esper.client.hook.VirtualDataWindowContext;
 import com.espertech.esper.client.hook.VirtualDataWindowEvent;
 import com.espertech.esper.client.hook.VirtualDataWindowLookup;
 import com.espertech.esper.client.hook.VirtualDataWindowLookupContext;
-import com.insart.titanium.concept.esper.events.generic.GenericEvent;
-import com.insart.titanium.concept.persistance.repository.GenericEventRepository;
+import com.insart.titanium.concept.esper.events.generic.TransactionEvent;
+import com.insart.titanium.concept.persistance.repository.GenericTransactionRepository;
 
 /**
  * Created by David on 03/02/2015.
@@ -28,7 +28,7 @@ import com.insart.titanium.concept.persistance.repository.GenericEventRepository
 @Component
 @Scope(value = "prototype")
 public class CouchbaseVirtualDataWindow implements VirtualDataWindow, InitializingBean {
-	private static final Log log = LogFactory.getLog(CouchbaseVirtualDataWindowFactory.class);
+	private static final Logger log = LoggerFactory.getLogger(CouchbaseVirtualDataWindowFactory.class);
 	private VirtualDataWindowContext context;
 
 	private String[] propertyNames;
@@ -37,7 +37,7 @@ public class CouchbaseVirtualDataWindow implements VirtualDataWindow, Initializi
 	private Class type;
 
 	@Autowired
-	GenericEventRepository eventRepository;
+	GenericTransactionRepository eventRepository;
 
 	@Autowired
 	private CouchbaseVirtualDataWindowKeyValueLookup couchbaseVirtualDataWindowKeyValueLookup;
@@ -62,13 +62,12 @@ public class CouchbaseVirtualDataWindow implements VirtualDataWindow, Initializi
 	public void update(EventBean[] newData, EventBean[] oldData) {
 		if (newData != null && newData.length > 0) {
 			for (EventBean eventBean : newData) {
-				eventRepository.save((GenericEvent) eventBean.getUnderlying());
+				eventRepository.save((TransactionEvent) eventBean.getUnderlying());
 			}
 		}
 		if (oldData != null && oldData.length > 0) {
-			log.debug("Starting delete...");
 			for (EventBean deleteBean : oldData) {
-				eventRepository.delete((GenericEvent) deleteBean.getUnderlying());
+				eventRepository.delete((TransactionEvent) deleteBean.getUnderlying());
 			}
 		}
 		context.getOutputStream().update(newData, oldData);
@@ -88,17 +87,17 @@ public class CouchbaseVirtualDataWindow implements VirtualDataWindow, Initializi
 		obtainedBeans = Collections.<EventBean> emptyList();
 
 		try {
-			Iterable<GenericEvent> obtainedEvents = eventRepository.findAll();
+			Iterable<TransactionEvent> obtainedEvents = eventRepository.findAll();
 			if (obtainedEvents == null) {
 				obtainedBeans = Collections.<EventBean> emptyList();
 			} else {
 				obtainedBeans = new LinkedList<>();
-				for (GenericEvent genericEvent : obtainedEvents) {
+				for (TransactionEvent genericEvent : obtainedEvents) {
 					obtainedBeans.add(context.getEventFactory().wrap(genericEvent));
 				}
 			}
 		} catch (Exception ex) {
-			log.error(ex);
+			log.error("", ex);
 			obtainedBeans = Collections.<EventBean> emptyList();
 		}
 		return obtainedBeans.iterator();
