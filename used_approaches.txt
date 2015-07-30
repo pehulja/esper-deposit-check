@@ -1,0 +1,107 @@
+Requirements to the test case:
+
+* Test event representation "ATMTransactionEvent":
+
+id 					- long
+account 			- String
+transactionAmount 	- double
+date 				- Date
+
+
+* It is required to keep 5 last ATM transactions per each account.
+* Feature representation: total amount of 5 last user`s transactions.
+* It is required to obtain fresh data about transactions from database on each event before calculation feature in order to take into account transactions, 
+that may be processed by other Esper nodes in cluster.
+* If last 5 total transactions amount more than 5000(units) need to perform some stuff
+
+-----------------------------------------------------------------------------------------------------------------------
+* Used approaches:
+* Case #1 (Esper statements)
+
+#1 create window VDW.std:groupwin(account).win:length(5).couchbase:couchbasevdw() as ATMTransactionEvent          // .couchbase:couchbasevdw() - creates new Virtual Data Window
+#2 insert into VDW{0} select * from ATMTransactionEvent
+#3 select wnd.account as name, sum(wnd.transactionAmount) as total  from VDW wnd group by wnd.account having sum(wnd.transactionAmount) > 5000
+
+* Pros: Implemented Virtual Data Window with Couchbase support successfully updates Couchbase database with income events (persist them), 
+also remove expired events (that are out of rolling window queue of 5 events)
+
+* Cons: When executing statement #3 Esper doesn`t use database lookup functionality of Virtual Data Window, though it was implemented using provided interface. 
+That is because ".std:groupwin(account).win:length(5)" hide from Esper, that the used Data Window is Virtual. Esper recognize Window like grouped, so it lookup for events in memory.
+As result query doesn`t take into account events, coming from other nodes.
+
+-----------------------------------------------------------------------------------------------------------------------
+* Case #2 (Esper statements)
+
+#1 create window VDW.couchbase:couchbasevdw() as ATMTransactionEvent
+#2 insert into VDW select * from ATMTransactionEvent
+#3 select wnd.account as name, sum(wnd.transactionAmount) as total  from VDW wnd group by wnd.account having sum(wnd.transactionAmount) > 5000
+
+* Pros: When starting Virtual DW, it will load all events, that are already exists in database. It can be useful when launching more nodes in cluster -> it will synchronize it`s state.
+* Cons: When executing statement #3 Esper doesn`t use database lookup functionality of Virtual Data Window, because Esper use it by default in JOIN and OnDemand queries. 
+So it will search only in memory.
+Also it is impossible "out-of-the-box" limit Virtual DW to keep only last 5 events per account. We may do this only manually.
+-----------------------------------------------------------------------------------------------------------------------
+* Case #3 (Esper statements)
+
+#1 create window VDW.couchbase:couchbasevdw() as ATMTransactionEvent
+#2 insert into VDW select * from ATMTransactionEvent
+#3 select wnd.account as name, sum(wnd.transactionAmount) as total  from VDW wnd full outer join ATMTransactionEvent.std:lastevent() last on last.account=wnd.account group by wnd.account having sum(wnd.transactionAmount) > 5000
+
+* Pros: When starting Virtual DW, it will load all events, that are already exists in database (same as in Case #2). It can be useful when launching more nodes in cluster -> it will synchronize it`s state.
+Also on statement #3 it takes fresh data from Database using standard Virual Data Window look up functionality while executing join statements.
+
+* Cons: Also it is impossible limit Virtual DW to keep only last 5 events per account. We may do this only manually.
+------------------------------------------------------------------------------------------------------------------------
+* Case #4 - Combined approaches (Esper statements)
+
+#1 create window VDW.std:groupwin(account).win:length(5).couchbase:couchbasevdw() as ATMTransactionEvent
+#2 insert into VDW select * from ATMTransactionEvent
+#3 select * from VDW
+
+Java additional configurations statements to compute required feature (used pseudocode)
+############### 
+.createEPL("select * from VDW").addListener(new UpdateListener() {   //// Used statement #3
+			
+			@Override
+			public void update(EventBean[] newEvents, EventBean[] oldEvents) {
+				String account = newEvents[0].get("account").toString();
+				// Pull from Couchbase DB all events related to account
+#4				List<ATMTransactionEvent> events = repository.findByAccount(account);
+#5				double totalTransactionAmount = events.stream().parallel().mapToDouble(tx -> tx.getTransactionAmount()).sum());
+#6				if(totalTransactionAmount > 5000){
+					// Do some stuff, like send another event to esper, etc...
+				}
+			}
+		});	
+		
+###############
+* Pros: Implemented Virtual Data Window with Couchbase support successfully updates Couchbase database with income events (persist them), 
+also remove expired events (that are out of rolling window queue of 5 events) (Same as Case #1)
+It fix issue of the case #1, now at each time of new event, it will pull fresh data from database to compute feature.
+
+* Possible cons: when executing #4, Couchbase may return events without new event, that has actually fires updateListener (tested on low performance developer environment).
+That is because Couchbase uses views to execute queries for data, which should be indexed when some data changes. 
+But it is easy to check for that on Java side, if it is needed.
+
+-----------------------------------------------------------------------------------------------------------------------
+* Case #5  - Combined approaches (Esper statements)
+#1 create window NamedWindow.std:groupwin(account).win:length(5) as ATMTransactionEvent
+#2 insert into NamedWindow select * from ATMTransactionEvent
+
+#3 create window VDW.couchbase:couchbasevdw() as ATMTransactionEvent
+#4 insert into VDW select * from NamedWindow
+#5 select wnd.account as name, sum(wnd.transactionAmount) as total  from VDW wnd full outer join ATMTransactionEvent.std:lastevent() last on last.account=wnd.account group by wnd.account having sum(wnd.transactionAmount) > 5000
+
+This approach uses two Esper window, one of that is Virtual. 
+* Pros: Rolling window with feature of holding some limit of events (5 events per account) used in plain named window
+Virtual Data Window is populating from plain named window. It fix issue of the case #1, now at each time of new event, 
+it will pull fresh data from database to compute feature.
+
+* Cons: It is not clear how to synchronize process of dropping expired events from named window to delete them also from Virtual DW, other than do it manually
+by subscribing listeners on events like on #6
+
+#6 select rstream * from NamedWindow
+//rstream - stream of NamedWindow, that contains only expired events.
+
+In update listener, it may manually remove events from Virtual DW.
+------------------------------------------------------------------------------------------------------------------------
