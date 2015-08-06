@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 
 import com.espertech.esper.client.EPServiceProvider;
 import com.insart.titanium.concept.esper.events.ATMTransactionEvent;
-import com.insart.titanium.concept.persistance.repository.GenericTransactionRepository;
 
 /**
  * @author Eugene Pehulja
@@ -25,13 +24,11 @@ public class TransactionEventGenerator {
 	@Autowired
 	EPServiceProvider epServiceProvider;
 
-	@Autowired
-	GenericTransactionRepository genericTransactionRepository;
 	private final int DEFAULT_UNIQUE_ACCOUNT_NUMBER = 4;
 
 	public void generateEvents(int uniqueAccountNumber) {
 		final EPServiceProvider epServiceProvider = this.epServiceProvider;
-		//genericTransactionRepository.deleteAll();
+		// ATMTransactionRepository.deleteAll();
 
 		ExecutorService executorService = Executors.newSingleThreadExecutor();
 		executorService.execute(new Runnable() {
@@ -40,11 +37,11 @@ public class TransactionEventGenerator {
 			@Override
 			public void run() {
 				while (true) {
-					ATMTransactionEvent atmTransactionEvent = new ATMTransactionEvent(new Date(), "Account_" + random.nextInt(uniqueAccountNumber), 100.0,
+					ATMTransactionEvent atmTransactionEvent = new ATMTransactionEvent(new Date(), "Account_" + random.nextInt(uniqueAccountNumber), random.nextInt(1000),
 							"Address" + random.nextInt(5));
 					epServiceProvider.getEPRuntime().sendEvent(atmTransactionEvent);
 					try {
-						Thread.sleep(500);
+						Thread.sleep(2000);
 					} catch (InterruptedException ex) {
 						logger.error("", ex);
 					}

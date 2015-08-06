@@ -6,11 +6,6 @@
 	<version>0.1</version>
 	<name>Deposit Check</name>
 	<dependencies>
-	<dependency>
-		<groupId>org.springframework.data</groupId>
-		<artifactId>spring-data-couchbase</artifactId>
-		<version>1.3.1.RELEASE</version>
-	</dependency>
 
 		<dependency>
 			<groupId>com.espertech</groupId>
@@ -19,46 +14,44 @@
 		</dependency>
 
 		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>3.4</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.data</groupId>
+			<artifactId>spring-data-couchbase</artifactId>
+			<version>2.0.0.BUILD-SNAPSHOT</version>
+		</dependency>
+		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
 			<version>LATEST</version>
 		</dependency>
-		
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-simple</artifactId>
 			<version>1.7.12</version>
 		</dependency>
-		
 		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.4</version>
-		</dependency>
-<!-- 		<dependency>
-			<groupId>com.couchbase.client</groupId>
-			<artifactId>java-client</artifactId>
-			<version>2.2.0-dp</version>
-		</dependency> -->
-		<dependency>
-			<groupId>ch.uzh.ifi.ddis.ifp</groupId>
-			<artifactId>cassandra-esper</artifactId>
-			<version>0.3.0</version>
+			<groupId>javax.validation</groupId>
+			<artifactId>validation-api</artifactId>
+			<version>1.1.0.Final</version>
 		</dependency>
 
 		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-lang3</artifactId>
-			<version>3.4</version>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-validator</artifactId>
+			<version>5.2.1.Final</version>
 		</dependency>
-		
-<!-- 		<dependency>
-			<groupId>org.springframework.data</groupId>
-			<artifactId>spring-data-couchbase</artifactId>
-			<version>2.0.0.BUILD-SNAPSHOT</version>
-		</dependency> -->
+		<dependency>
+			<groupId>com.couchbase.client</groupId>
+			<artifactId>java-client</artifactId>
+			<version>2.2.0-dp2</version>
+		</dependency>
 	</dependencies>
-<!-- 	<repositories>
+	<repositories>
 		<repository>
 			<id>spring-libs-snapshot</id>
 			<name>Spring Snapshot Repository</name>
@@ -72,7 +65,7 @@
 				<enabled>false</enabled>
 			</snapshots>
 		</repository>
-	</repositories> -->
+	</repositories>
 	<build>
 		<plugins>
 			<plugin>
@@ -89,7 +82,7 @@
 				<configuration>
 					<archive>
 						<manifest>
-							<mainClass>com.pehulja.esper.deposit_check.configuration.StartUp</mainClass>
+							<mainClass>com.insart.titanium.concept.CustomViewsTest</mainClass>
 						</manifest>
 					</archive>
 					<descriptorRefs>

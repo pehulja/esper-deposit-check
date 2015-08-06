@@ -1,0 +1,14 @@
+function (doc, meta) {
+  if (doc._class == "com.insart.titanium.concept.esper.events.ATMTransactionEvent") {
+    emit(null, null);
+  }
+}
+
+function (doc, meta) {
+  if (doc._class == "com.insart.titanium.concept.esper.events.ATMTransactionEvent") {
+    emit(doc.account, null);
+  }
+}
+
+transactionEvent
+transactionevent

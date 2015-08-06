@@ -11,7 +11,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.data.couchbase.config.AbstractCouchbaseConfiguration;
+import org.springframework.data.couchbase.core.CouchbaseTemplate;
+import org.springframework.data.couchbase.core.convert.MappingCouchbaseConverter;
+import org.springframework.data.couchbase.core.mapping.CouchbaseDocument;
 import org.springframework.data.couchbase.repository.config.EnableCouchbaseRepositories;
+import org.springframework.data.mapping.model.MappingException;
 
 @Configuration
 @ComponentScan({ "com.insart.titanium.concept" })
@@ -38,10 +42,10 @@ public class SpringConfiguration extends AbstractCouchbaseConfiguration {
 		return PROPERTY_COUCHBASE_PASSWORD;
 	}
 
-	/*
-	 * @Override protected List<String> getBootstrapHosts() { return
-	 * Arrays.asList(PROPERTY_COUCHBASE_LOCATION); }
-	 */
+	@Override
+	protected List<String> getBootstrapHosts() {
+		return Arrays.asList(PROPERTY_COUCHBASE_LOCATION);
+	}
 
 	@Bean
 	public ApplicationContextAware getApplicationContextProvider() {
@@ -53,16 +57,26 @@ public class SpringConfiguration extends AbstractCouchbaseConfiguration {
 		return new PropertySourcesPlaceholderConfigurer();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.springframework.data.couchbase.config.AbstractCouchbaseConfiguration#
-	 * bootstrapHosts()
-	 */
 	@Override
-	protected List<String> bootstrapHosts() {
-		return Arrays.asList(PROPERTY_COUCHBASE_LOCATION);
+	public MappingCouchbaseConverter mappingCouchbaseConverter() throws Exception {
+		MappingCouchbaseConverter converter = new MappingCouchbaseConverter(couchbaseMappingContext(), typeKey()) {
+
+			@Override
+			public void write(Object source, CouchbaseDocument target) {
+				try {
+					super.write(source, target);
+				} catch (MappingException ex) {
+					if (target.getId() == null) {
+						target.setId(Long.toString(this.applicationContext.getBean(CouchbaseTemplate.class).getCouchbaseBucket().counter("DOCUMENT_ID", 1, 1).content()));
+					} else {
+						throw ex;
+					}
+				}
+			}
+		};
+
+		converter.setCustomConversions(customConversions());
+		return converter;
 	}
 
 }

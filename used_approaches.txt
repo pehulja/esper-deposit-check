@@ -19,7 +19,7 @@ that may be processed by other Esper nodes in cluster.
 * Case #1 (Esper statements)
 
 #1 create window VDW.std:groupwin(account).win:length(5).couchbase:couchbasevdw() as ATMTransactionEvent          // .couchbase:couchbasevdw() - creates new Virtual Data Window
-#2 insert into VDW{0} select * from ATMTransactionEvent
+#2 insert into VDW select * from ATMTransactionEvent
 #3 select wnd.account as name, sum(wnd.transactionAmount) as total  from VDW wnd group by wnd.account having sum(wnd.transactionAmount) > 5000
 
 * Pros: Implemented Virtual Data Window with Couchbase support successfully updates Couchbase database with income events (persist them), 
@@ -105,3 +105,29 @@ by subscribing listeners on events like on #6
 
 In update listener, it may manually remove events from Virtual DW.
 ------------------------------------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------------------------------------
+ESPER HA:
+!!! The HA plugin is responsible for storing the internal state of the engine, for recovery purposes. This is enabled on a statement-by-statement basis, through annotations appearing before the actual EPL code, and with a bit of XML configuration. When a failed engine is brought up again, or when a backup engine is started, the saved state is restored automatically – though with some limitations regarding event size or statement complexity. The state is not saved continuously during normal operations: checkpoints are issued at regular (configurable) intervals measured in seconds or number of events, so a complete recovery cannot be guaranteed unless the input feed can detect and replay incompletely processed events.
+---------------------------------------------------------------------------------------------------------------------------
+
+######################################################################################
+#COMMON ISSUEs
+#1 In case of several VDW, that hold same events (the first one keep 5 last events per account, the second keeps two last events per account). In scope of persisting 
+# events to DB, the first window will remove 6-th event from context and from DB, but the second window still need it for calculation. 
+# if event wont be removed, I may brake logic of calculating feature when based on data from DC
+
+#2 What if several nodes in cluster configured to keep 5 last events per account. There no out-of-the-box way how to synchronize them, each will hold last 5 events, 
+# so summary DB keep 10 events (5 for each node of cluster)
+
+In order to fix #2 issue lets implement
+
+Аспекты работы виртуальных окон с памятью.
+--------------------------------------------------------------------------------------
+1. Если на виртуальное окно накинуть еще фильтров (длина время группировка) - все плохо. он держит все инстансы и не удаляет их. и возникает переполнение памяти.
+2. Если виртуально окно само по себе, то оно эффективно работает с памятью. А запросы которые замаплены на него (например с использованием sum ), если в нем нет Join - то он видимо кеширует результат после каждого срабтывания, т.к. в БД не лезет, но считает правильно.
+3. Если же будем использовать он DemandQuery на это виртуальное окно - то тогда оно полезет в память, а не в кеш. 
+
+
+
+

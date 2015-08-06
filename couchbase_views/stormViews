@@ -1,0 +1,24 @@
+genericEntity
+all
+function (doc, meta) {
+  if (doc._class == "com.insart.titanium.storm.entity.Transaction") {
+     emit(null, null); 
+  }
+}
+
+byDate
+function (doc, meta) {
+  if (doc._class == "com.insart.titanium.storm.entity.Transaction") {
+     emit(null, null); 
+  }
+}
+
+count
+function (doc, meta) {
+  if (doc._class == "com.insart.titanium.storm.entity.Transaction") {
+     emit(null, null); 
+  }
+}
+
+
+transaction

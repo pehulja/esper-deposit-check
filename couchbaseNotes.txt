@@ -1,0 +1,2 @@
+N1QL 
+http://localhost:8093/query/service

@@ -1,0 +1,9 @@
+create schema ATMTransaction(account string, amount int, location string);
+create context SegmentedByLocationt partition by location from ATMTransaction;
+@Name("SimpleSelect") context SegmentedByLocationt  select count(*) from ATMTransaction;
+
+@Name("SimpleSelect") context SegmentedByLocationt  select account, location,  sum(amount) from ATMTransaction group by account;
+@Name("PatternSelect") context SegmentedByLocationt select * from pattern [every a=ATMTransaction(amount>10) -> b=ATMTransaction(amount>30) where timer:within(10 minutes)];
+
+
+

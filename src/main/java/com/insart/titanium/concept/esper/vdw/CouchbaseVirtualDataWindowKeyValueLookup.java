@@ -1,8 +1,9 @@
 package com.insart.titanium.concept.esper.vdw;
 
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,8 +15,8 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.hook.VirtualDataWindowContext;
 import com.espertech.esper.client.hook.VirtualDataWindowLookup;
 import com.espertech.esper.client.hook.VirtualDataWindowLookupContext;
-import com.insart.titanium.concept.esper.events.generic.TransactionEvent;
-import com.insart.titanium.concept.persistance.repository.GenericTransactionRepository;
+import com.insart.titanium.concept.esper.events.ATMTransactionEvent;
+import com.insart.titanium.concept.persistance.repository.ATMTransactionRepository;
 
 /**
  * Created by David on 03/02/2015.
@@ -32,11 +33,11 @@ public class CouchbaseVirtualDataWindowKeyValueLookup implements VirtualDataWind
 	}
 
 	@Autowired
-	GenericTransactionRepository eventRepository;
+	ATMTransactionRepository eventRepository;
 
 	@Override
 	public Set<EventBean> lookup(Object[] keys, EventBean[] eventBeans) {
-		Set<EventBean> obtainedBeans = new HashSet<>();
+		log.info("KeyValue Look up in Couchbase Data Base");
 		/*
 		 * If we use special query for DB either findAll query -> output of
 		 * Esper will be same, but size of serverside work + amount of
@@ -44,24 +45,11 @@ public class CouchbaseVirtualDataWindowKeyValueLookup implements VirtualDataWind
 		 */
 		// TODO: For now it should be only findAll, untill implementation of
 		// query for Couchbase
-		Iterable<TransactionEvent> obtainedEvents = eventRepository.findAll();
-		/*
-		 * Iterable<GenericEvent> obtainedEvents =
-		 * eventRepository.customFindByAccountNameAndIncome("Account1", 7); try{
-		 * obtainedEvents = eventRepository.findAll(); }catch(Exception ex){
-		 * log.error(ex); } obtainedEvents =
-		 * eventRepository.findByType("DEPOSIT_INCOME_EVENT");
-		 */
-
+		Iterable<ATMTransactionEvent> obtainedEvents = eventRepository.findAll();
 		if (obtainedEvents != null) {
-			Iterator<TransactionEvent> iterator = obtainedEvents.iterator();
-			// Esper manipulates with EventBean, so need to wrap our event to
-			// EventBean
-			while (iterator.hasNext()) {
-				obtainedBeans.add(context.getEventFactory().wrap(iterator.next()));
-			}
+			return StreamSupport.stream(obtainedEvents.spliterator(), true).map(context.getEventFactory()::wrap).collect(Collectors.toSet());
 		}
-		return obtainedBeans;
+		return new HashSet<EventBean>();
 	}
 
 	public void setContext(VirtualDataWindowContext context) {

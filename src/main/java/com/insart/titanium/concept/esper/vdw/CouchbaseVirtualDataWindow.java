@@ -17,8 +17,9 @@ import com.espertech.esper.client.hook.VirtualDataWindowContext;
 import com.espertech.esper.client.hook.VirtualDataWindowEvent;
 import com.espertech.esper.client.hook.VirtualDataWindowLookup;
 import com.espertech.esper.client.hook.VirtualDataWindowLookupContext;
+import com.insart.titanium.concept.esper.events.ATMTransactionEvent;
 import com.insart.titanium.concept.esper.events.generic.TransactionEvent;
-import com.insart.titanium.concept.persistance.repository.GenericTransactionRepository;
+import com.insart.titanium.concept.persistance.repository.ATMTransactionRepository;
 
 @Component(value = "CouchbaseVirtualDataWindow")
 @Scope(value = "prototype")
@@ -32,7 +33,7 @@ public class CouchbaseVirtualDataWindow implements VirtualDataWindow {
 	private Class type;
 
 	@Autowired
-	GenericTransactionRepository eventRepository;
+	ATMTransactionRepository eventRepository;
 
 	@Autowired
 	private CouchbaseVirtualDataWindowKeyValueLookup couchbaseVirtualDataWindowKeyValueLookup;
@@ -56,21 +57,17 @@ public class CouchbaseVirtualDataWindow implements VirtualDataWindow {
 	}
 
 	public void update(EventBean[] newData, EventBean[] oldData) {
-		try {
-			if (newData != null && newData.length > 0) {
-				for (EventBean eventBean : newData) {
-					eventRepository.save((TransactionEvent) eventBean.getUnderlying());
-				}
+		if (newData != null && newData.length > 0) {
+			for (EventBean eventBean : newData) {
+				eventRepository.save((ATMTransactionEvent) eventBean.getUnderlying());
 			}
-			if (oldData != null && oldData.length > 0) {
-				for (EventBean deleteBean : oldData) {
-					eventRepository.delete((TransactionEvent) deleteBean.getUnderlying());
-				}
-			}
-		} catch (Exception ex) {
-			log.error("", ex);
 		}
-		context.getOutputStream().update(newData, oldData);
+		if (oldData != null && oldData.length > 0) {
+			for (EventBean deleteBean : oldData) {
+				eventRepository.delete((ATMTransactionEvent) deleteBean.getUnderlying());
+			}
+		}
+		// context.getOutputStream().update(newData, oldData);
 	}
 
 	public void destroy() {
@@ -87,7 +84,7 @@ public class CouchbaseVirtualDataWindow implements VirtualDataWindow {
 		obtainedBeans = Collections.<EventBean> emptyList();
 
 		try {
-			Iterable<TransactionEvent> obtainedEvents = eventRepository.findAll();
+			Iterable<ATMTransactionEvent> obtainedEvents = eventRepository.findAll();
 			if (obtainedEvents == null) {
 				obtainedBeans = Collections.<EventBean> emptyList();
 			} else {
