@@ -1,2 +1,12 @@
 N1QL 
 http://localhost:8093/query/service
+
+Authorization header:
+Authorization: Basic {base64 - local:{user-name}:{password}}
+Например: local:root:98979897
+
+Индексы:
+statement=CREATE PRIMARY INDEX ON esper USING GSI;
+
+Получил:
+GSI CreatePrimaryIndex() - cause: Fails to create index. There is no available index service that can process this request at this time. Index Service can be in bootstrap, recovery, or non-reachable. Please retry the operation at a later time.
