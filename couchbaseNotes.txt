@@ -10,3 +10,6 @@ statement=CREATE PRIMARY INDEX ON esper USING GSI;
 
 Получил:
 GSI CreatePrimaryIndex() - cause: Fails to create index. There is no available index service that can process this request at this time. Index Service can be in bootstrap, recovery, or non-reachable. Please retry the operation at a later time.
+
+
+cbq -engine http://login:password@127.0.0.1:8093
