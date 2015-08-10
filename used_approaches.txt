@@ -83,27 +83,6 @@ It fix issue of the case #1, now at each time of new event, it will pull fresh d
 That is because Couchbase uses views to execute queries for data, which should be indexed when some data changes. 
 But it is easy to check for that on Java side, if it is needed.
 
------------------------------------------------------------------------------------------------------------------------
-* Case #5  - Combined approaches (Esper statements)
-#1 create window NamedWindow.std:groupwin(account).win:length(5) as ATMTransactionEvent
-#2 insert into NamedWindow select * from ATMTransactionEvent
-
-#3 create window VDW.couchbase:couchbasevdw() as ATMTransactionEvent
-#4 insert into VDW select * from NamedWindow
-#5 select wnd.account as name, sum(wnd.transactionAmount) as total  from VDW wnd full outer join ATMTransactionEvent.std:lastevent() last on last.account=wnd.account group by wnd.account having sum(wnd.transactionAmount) > 5000
-
-This approach uses two Esper window, one of that is Virtual. 
-* Pros: Rolling window with feature of holding some limit of events (5 events per account) used in plain named window
-Virtual Data Window is populating from plain named window. It fix issue of the case #1, now at each time of new event, 
-it will pull fresh data from database to compute feature.
-
-* Cons: It is not clear how to synchronize process of dropping expired events from named window to delete them also from Virtual DW, other than do it manually
-by subscribing listeners on events like on #6
-
-#6 select rstream * from NamedWindow
-//rstream - stream of NamedWindow, that contains only expired events.
-
-In update listener, it may manually remove events from Virtual DW.
 ------------------------------------------------------------------------------------------------------------------------
 
 --------------------------------------------------------------------------------------------------------------------------
@@ -127,7 +106,5 @@ In order to fix #2 issue lets implement
 1. Если на виртуальное окно накинуть еще фильтров (длина время группировка) - все плохо. он держит все инстансы и не удаляет их. и возникает переполнение памяти.
 2. Если виртуально окно само по себе, то оно эффективно работает с памятью. А запросы которые замаплены на него (например с использованием sum ), если в нем нет Join - то он видимо кеширует результат после каждого срабтывания, т.к. в БД не лезет, но считает правильно.
 3. Если же будем использовать он DemandQuery на это виртуальное окно - то тогда оно полезет в память, а не в кеш. 
-
-
 
 

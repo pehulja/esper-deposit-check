@@ -1,4 +1,4 @@
-package com.insart.titanium.concept.esper.vdw;
+package com.insart.titanium.concept.esper.vdw.memoryTest;
 
 import java.util.Collections;
 import java.util.Iterator;
@@ -17,14 +17,13 @@ import com.espertech.esper.client.hook.VirtualDataWindowContext;
 import com.espertech.esper.client.hook.VirtualDataWindowEvent;
 import com.espertech.esper.client.hook.VirtualDataWindowLookup;
 import com.espertech.esper.client.hook.VirtualDataWindowLookupContext;
-import com.insart.titanium.concept.esper.events.ATMTransactionEvent;
-import com.insart.titanium.concept.esper.events.generic.TransactionEvent;
-import com.insart.titanium.concept.persistance.repository.ATMTransactionRepository;
+import com.insart.titanium.concept.esper.events.BigATMTransactionEvent;
+import com.insart.titanium.concept.persistance.repository.BigATMTransactionRepository;
 
-@Component(value = "CouchbaseVirtualDataWindow")
+@Component(value = "CouchbaseVirtualDataWindowMemory")
 @Scope(value = "prototype")
-public class CouchbaseVirtualDataWindow implements VirtualDataWindow {
-	private static final Logger log = LoggerFactory.getLogger(CouchbaseVirtualDataWindowFactory.class);
+public class CouchbaseVirtualDataWindowMemoryTest implements VirtualDataWindow {
+	private static final Logger log = LoggerFactory.getLogger(CouchbaseVirtualDataWindowMemoryTestFactory.class);
 	private VirtualDataWindowContext context;
 
 	private String[] propertyNames;
@@ -33,12 +32,12 @@ public class CouchbaseVirtualDataWindow implements VirtualDataWindow {
 	private Class type;
 
 	@Autowired
-	ATMTransactionRepository eventRepository;
+	BigATMTransactionRepository eventRepository;
 
 	@Autowired
-	private CouchbaseVirtualDataWindowKeyValueLookup couchbaseVirtualDataWindowKeyValueLookup;
+	private CouchbaseVirtualDataWindowMemoryTestKeyValueLookup couchbaseVirtualDataWindowKeyValueLookup;
 
-	public CouchbaseVirtualDataWindow(VirtualDataWindowContext context) {
+	public CouchbaseVirtualDataWindowMemoryTest(VirtualDataWindowContext context) {
 		this.context = context;
 		this.type = context.getEventType().getUnderlyingType();
 		this.propertyNames = context.getEventType().getPropertyNames();
@@ -59,12 +58,12 @@ public class CouchbaseVirtualDataWindow implements VirtualDataWindow {
 	public void update(EventBean[] newData, EventBean[] oldData) {
 		if (newData != null && newData.length > 0) {
 			for (EventBean eventBean : newData) {
-				eventRepository.save((ATMTransactionEvent) eventBean.getUnderlying());
+				eventRepository.save((BigATMTransactionEvent) eventBean.getUnderlying());
 			}
 		}
 		if (oldData != null && oldData.length > 0) {
 			for (EventBean deleteBean : oldData) {
-				eventRepository.delete((ATMTransactionEvent) deleteBean.getUnderlying());
+				eventRepository.delete((BigATMTransactionEvent) deleteBean.getUnderlying());
 			}
 		}
 		context.getOutputStream().update(newData, oldData);
@@ -84,12 +83,12 @@ public class CouchbaseVirtualDataWindow implements VirtualDataWindow {
 		obtainedBeans = Collections.<EventBean> emptyList();
 
 		try {
-			Iterable<ATMTransactionEvent> obtainedEvents = eventRepository.findAll();
+			Iterable<BigATMTransactionEvent> obtainedEvents = eventRepository.findAll();
 			if (obtainedEvents == null) {
 				obtainedBeans = Collections.<EventBean> emptyList();
 			} else {
 				obtainedBeans = new LinkedList<>();
-				for (TransactionEvent genericEvent : obtainedEvents) {
+				for (BigATMTransactionEvent genericEvent : obtainedEvents) {
 					obtainedBeans.add(context.getEventFactory().wrap(genericEvent));
 				}
 			}

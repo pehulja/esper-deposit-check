@@ -1,7 +1,6 @@
 package com.insart.titanium.concept.esper.events;
 
 import java.util.Date;
-import java.util.Random;
 
 import org.springframework.data.couchbase.core.mapping.Document;
 
@@ -20,9 +19,6 @@ public class ATMTransactionEvent extends TransactionEvent {
 	@Field
 	private String address;
 
-	@Field
-	private Long[] buffer = new Long[99999];
-
 	/**
 	 * @param date
 	 * @param account
@@ -33,10 +29,6 @@ public class ATMTransactionEvent extends TransactionEvent {
 		super(date, account);
 		this.transactionAmount = transactionAmount;
 		this.address = address;
-		Random random = new Random();
-		for (int i = 0; i < buffer.length; i++) {
-			buffer[i] = random.nextLong();
-		}
 	}
 
 	public double getTransactionAmount() {
@@ -53,14 +45,6 @@ public class ATMTransactionEvent extends TransactionEvent {
 
 	public void setAddress(String address) {
 		this.address = address;
-	}
-
-	public Long[] getBuffer() {
-		return buffer;
-	}
-
-	public void setBuffer(Long[] buffer) {
-		this.buffer = buffer;
 	}
 
 	@Override
